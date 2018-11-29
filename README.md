@@ -11,10 +11,10 @@ and get tiny binaries (250kb) and single-digit millisecond cold starts!
 Create a `bootstrap.nim` with the following:
 
 ```nim
-import awslambda, json
+import awslambda, json, times
 
 proc handler(event: JsonNode, context: LambdaContext): JsonNode =
-  echo "Hi from nim!", context.awsRequestId, " Deadline is: ", context.deadlineMs, "ms"
+  echo "Hi from nim! Invocation will timeout at: ", context.deadline.format("yyyy-MM-dd'T'HH:mm:ss'.'fff")
 
   event["newKey"] = %*"newVal"
 
@@ -66,7 +66,7 @@ type
     logStreamName: string
     awsRequestId: string
     invokedFunctionArn: string
-    deadlineMs: int
+    deadline: Time
     identity: JsonNode
     clientContext: JsonNode
 ```

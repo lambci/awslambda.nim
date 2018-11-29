@@ -1,4 +1,4 @@
-import os, httpclient, json, strutils
+import os, httpclient, json, strutils, times
 
 type
   LambdaContext* = tuple
@@ -9,7 +9,7 @@ type
     logStreamName: string
     awsRequestId: string
     invokedFunctionArn: string
-    deadlineMs: int
+    deadline: Time
     identity: JsonNode
     clientContext: JsonNode
 
@@ -32,6 +32,8 @@ proc startLambda*(handler: proc(event: JsonNode, context: LambdaContext): JsonNo
 
     putEnv("_X_AMZN_TRACE_ID", res.headers.getOrDefault("Lambda-Runtime-Trace-Id"))
 
+    var deadlineMs = parseInt(res.headers.getOrDefault("Lambda-Runtime-Deadline-Ms"))
+
     var context: LambdaContext
     context = (
       functionName: functionName,
@@ -41,7 +43,7 @@ proc startLambda*(handler: proc(event: JsonNode, context: LambdaContext): JsonNo
       logStreamName: logStreamName,
       awsRequestId: string(res.headers.getOrDefault("Lambda-Runtime-Aws-Request-Id")),
       invokedFunctionArn: string(res.headers.getOrDefault("Lambda-Runtime-Invoked-Function-Arn")),
-      deadlineMs: parseInt(res.headers.getOrDefault("Lambda-Runtime-Deadline-Ms")),
+      deadline: initTime(deadlineMs div 1_000, (deadlineMs mod 1_000) * 1_000_000),
       identity: newJNull(),
       clientContext: newJNull(),
     )
