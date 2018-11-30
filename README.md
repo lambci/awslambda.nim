@@ -31,7 +31,7 @@ when isMainModule:
 # if you're using Linux, you probably don't need to compile in docker, but assuming you're not:
 
 docker run --rm -v "$PWD":/app -w /app nimlang/nim \
-  sh -c 'nimble install -y https://github.com/lambci/awslambda.nim && nim c -d:release bootstrap.nim'
+  sh -c 'nimble install -y awslambda && nim c -d:release bootstrap.nim'
 
 zip -yr lambda.zip bootstrap # and anything else your binary needs
 ```
